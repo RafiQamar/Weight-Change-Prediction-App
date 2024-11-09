@@ -2,7 +2,7 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import joblib
+
 
 # Load the model
 with open('model.pkl', 'rb') as f:
