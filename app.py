@@ -1,23 +1,14 @@
 
 import streamlit as st
-import pickle
-import pandas as pd
 
-# Load the model
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
-# Load the scaler
-with open('scaler.pkl', 'rb') as f:
-    scaler = pickle.load(f)
-# Load the gender encoder
-with open('gender_encoder.pkl', 'rb') as f:
-    gender_encoder = pickle.load(f)
-# Load the sleep_encoder
-with open('sleep_encoder.pkl', 'rb') as f:
-    sleep_encoder = pickle.load(f)
-# Load the tranformator
-with open('transformator.pkl', 'rb') as f:
-    pt = pickle.load(f)
+import pandas as pd
+import joblib
+
+model = joblib.load('model.pkl')
+scaler = joblib.load('scaler.pkl')
+gender_encoder = joblib.load('gender_encoder.pkl')
+sleep_encoder = joblib.load('sleep_encoder.pkl')
+transformator = joblib.load('transformator.pkl')
 
 
 st.title('Weight Change Prediction')
@@ -63,7 +54,7 @@ input_data[num_cols] = scaler.transform(input_data[num_cols])
 
 if st.button('Predict Weight Change'):
     pred = model.predict(input_data)
-    prediction = pt.inverse_transform(pred.reshape(-1, 1))
+    prediction = transformator.inverse_transform(pred.reshape(-1, 1))
     weight_change = prediction[0][0]
     st.write(f"Predicted Weight Change: {weight_change:.2f} lbs")
 
