@@ -1,12 +1,10 @@
+%%writefile app.py
 
 import streamlit as st
 import pickle
 import pandas as pd
+import joblib
 
-
-# Load the model
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
 # Load the scaler
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
@@ -16,27 +14,29 @@ with open('gender_encoder.pkl', 'rb') as f:
 # Load the sleep_encoder
 with open('sleep_encoder.pkl', 'rb') as f:
     sleep_encoder = pickle.load(f)
+# Load the model
+with open('model.pkl', 'rb') as f:
+    model = pickle.load(f)
 # Load the tranformator
 with open('transformator.pkl', 'rb') as f:
     pt = pickle.load(f)
 
-
 st.title('Weight Change Prediction')
-age = st.number_input('Age:', min_value=18, max_value=100, value=25)
+age = st.number_input('Age:', min_value=18, max_value=100, value=26)
 gender = st.selectbox('Gender:', ['M', 'F'])
-current_weight = st.number_input('Current Weight (lbs):', min_value=50, max_value=300, value=150)
-daily_calories_surplus_deficit = st.number_input('Daily Calories Surplus/Deficit:', min_value=50, max_value=2500, value = 500)
-daily_calories_consumed = st.number_input('Daily Calories Consumed:', min_value=1500, max_value=5000, value = 2500)
+current_weight = st.number_input('Current Weight (lbs):', min_value=50.0, max_value=300.0, value=125.1, step=0.1)
+daily_calories_surplus_deficit = st.number_input('Daily Calories Surplus/Deficit:', min_value=50.0, max_value=2500.0, value=428.5, step=0.1)
+daily_calories_consumed = st.number_input('Daily Calories Consumed:', min_value=1500.0, max_value=5000.0, value=2647.8, step=0.1)
 stress_level = st.slider('Stress Level (1-10):', 1, 10, 5)
 sleep_quality = st.selectbox('Sleep Quality:',['Excellent', 'Good', 'Fair', 'Poor'])
 duration_weeks = st.number_input('Duration (Weeks):', min_value=1, max_value=52, value=4)
 
 physical_activity_level = st.selectbox('Physical Activity', ['Sedentary', 'Very Active', 'Lightly Active', 'Moderately Active'])
-bmr_calories = st.number_input('BMR (calories):', min_value=500, max_value=5000, value=2500)
+bmr_calories = st.number_input('BMR (calories):', min_value=500.0, max_value=5000.0, value=2219.3, step=0.1)
 
 
 gender_encoded = gender_encoder.transform([gender])[0]
-sleep_quality_encoded = sleep_encoder.transform([sleep_quality])[0]
+
 
 met_value_map = {
     'Sedentary' : 1.2,
@@ -48,19 +48,25 @@ met_value_map = {
 activity_weighted_calories= bmr_calories * met_value_map.get(physical_activity_level)
 
 input_data = pd.DataFrame({
+    'Age': [age],  
     'Current Weight (lbs)' : [current_weight],
     'Daily Calories Consumed' : [daily_calories_consumed],
     'Daily Caloric Surplus/Deficit' : [daily_calories_surplus_deficit],
     'Duration (weeks)' : [duration_weeks],
-    'Sleep Quality' : [sleep_quality_encoded],
+    'Sleep Quality' : [sleep_quality],
     'Stress Level' : [stress_level],
     'Activity Weighted Calories' : [activity_weighted_calories]
 })
 
-num_cols = ['Current Weight (lbs)', 'Daily Calories Consumed',
+
+
+num_cols = ['Age', 'Current Weight (lbs)', 'Daily Calories Consumed',
        'Daily Caloric Surplus/Deficit', 'Activity Weighted Calories']
 
 input_data[num_cols] = scaler.transform(input_data[num_cols])
+input_data['Sleep Quality'] = sleep_encoder.transform(input_data['Sleep Quality'])[0]
+
+input_data.drop(columns = ['Age'], inplace = True)
 
 if st.button('Predict Weight Change'):
     pred = model.predict(input_data)
