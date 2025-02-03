@@ -1,5 +1,14 @@
 # Weight Change Prediction App
 An interactive web app built with Streamlit that predicts weight change based on user input, such as age, caloric intake, activity level, sleep quality, and more. It utilizes a machine learning model to provide personalized advice and insights based on the predicted weight change.
+
+
+###
+
+<div align="center">
+  <img src="https://github.com/RafiQamar/Weight-Change-Prediction-App/blob/main/Weight%20Change%20Prediction%20App.gif?raw=true" height="300" alt="Weight change prediction app" />
+</div>
+
+###
 ## Features
 * Predict weight change based on user input of health metrics and lifestyle factors
 * Tailored insights and advice for health improvement based on prediction
